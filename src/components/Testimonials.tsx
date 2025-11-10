@@ -86,11 +86,13 @@ const Testimonials = () => {
         <div className="relative max-w-4xl mx-auto">
           <div className="relative aspect-[16/9] md:aspect-[21/9] overflow-hidden rounded-2xl shadow-elegant">
             {/* Background Image */}
-            <img
-              src={testimonials[currentIndex].image_url || ""}
-              alt={testimonials[currentIndex].couple_names}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+            {testimonials[currentIndex].image_url?.startsWith('http') && (
+              <img
+                src={testimonials[currentIndex].image_url}
+                alt={testimonials[currentIndex].couple_names}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
 
             {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-elegant-dark via-elegant-dark/60 to-transparent"></div>

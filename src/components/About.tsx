@@ -77,7 +77,7 @@ const About = () => {
           <div className="relative fade-in">
             <div className="aspect-[4/3] overflow-hidden rounded-lg shadow-elegant">
               <img
-                src={content?.image_url || aboutImage}
+                src={content?.image_url?.startsWith('http') ? content.image_url : aboutImage}
                 alt="Xine Studio - Where Love Meets Design"
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
               />

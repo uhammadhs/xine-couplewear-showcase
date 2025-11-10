@@ -76,7 +76,7 @@ const Journal = () => {
           <div className="relative fade-in order-2 md:order-1">
             <div className="aspect-[4/3] overflow-hidden rounded-lg shadow-elegant">
               <img
-                src={content?.image_url || journalImage}
+                src={content?.image_url?.startsWith('http') ? content.image_url : journalImage}
                 alt="Behind the Design - Xine Journal"
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
               />

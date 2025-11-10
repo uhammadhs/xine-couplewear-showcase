@@ -68,7 +68,7 @@ const Hero = () => {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <img
-          src={content?.image_url || heroImage}
+          src={content?.image_url?.startsWith('http') ? content.image_url : heroImage}
           alt="Xine Couplewear - Together in Style"
           className="w-full h-full object-cover"
         />

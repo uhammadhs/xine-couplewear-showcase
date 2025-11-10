@@ -100,12 +100,14 @@ const Collections = () => {
               className="group relative overflow-hidden rounded-lg shadow-soft hover:shadow-elegant transition-all duration-500 fade-in"
             >
               {/* Image */}
-              <div className="aspect-[4/5] overflow-hidden">
-                <img
-                  src={collection.image_url || ""}
-                  alt={collection.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
+              <div className="aspect-[4/5] overflow-hidden bg-muted">
+                {collection.image_url?.startsWith('http') && (
+                  <img
+                    src={collection.image_url}
+                    alt={collection.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                )}
               </div>
 
               {/* Overlay Content */}
