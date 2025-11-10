@@ -1,9 +1,17 @@
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Mail, Instagram, MessageCircle } from "lucide-react";
+import { z } from "zod";
+
+const contactSchema = z.object({
+  name: z.string().trim().min(1, "Nama tidak boleh kosong").max(100, "Nama maksimal 100 karakter"),
+  email: z.string().trim().email("Email tidak valid").max(255, "Email maksimal 255 karakter"),
+  message: z.string().trim().min(10, "Pesan minimal 10 karakter").max(1000, "Pesan maksimal 1000 karakter"),
+});
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -11,11 +19,38 @@ const Contact = () => {
     email: "",
     message: "",
   });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Terima kasih! Kami akan menghubungi Anda segera.");
-    setFormData({ name: "", email: "", message: "" });
+    setLoading(true);
+
+    try {
+      const validatedData = contactSchema.parse(formData);
+
+      const dataToSave = {
+        name: validatedData.name,
+        email: validatedData.email,
+        message: validatedData.message,
+      };
+
+      const { error } = await supabase
+        .from("contact_messages")
+        .insert([dataToSave]);
+
+      if (error) throw error;
+
+      toast.success("Terima kasih! Pesan Anda sudah kami terima.");
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        toast.error("Gagal mengirim pesan. Silakan coba lagi.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (
@@ -99,8 +134,8 @@ const Contact = () => {
                   />
                 </div>
 
-                <Button type="submit" variant="hero" size="lg" className="w-full">
-                  Kirim Pesan
+                <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
+                  {loading ? "Mengirim..." : "Kirim Pesan"}
                 </Button>
               </form>
             </div>

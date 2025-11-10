@@ -1,53 +1,111 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import testimonialImage1 from "@/assets/testimonial-1.jpg";
 import testimonialImage2 from "@/assets/testimonial-2.jpg";
 import testimonialImage3 from "@/assets/testimonial-3.jpg";
 
+type Testimonial = {
+  id: string;
+  couple_names: string;
+  quote: string;
+  occasion: string;
+  image_url: string | null;
+  is_active: boolean;
+  display_order: number;
+};
+
 const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const testimonials = [
+  useEffect(() => {
+    fetchTestimonials();
+  }, []);
+
+  const fetchTestimonials = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("testimonials")
+        .select("*")
+        .eq("is_active", true)
+        .order("display_order", { ascending: true });
+
+      if (error) throw error;
+      setTestimonials(data || []);
+    } catch (error) {
+      console.error("Error fetching testimonials:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fallback testimonials if database is empty
+  const fallbackTestimonials = [
     {
-      id: 1,
-      image: testimonialImage1,
+      id: "1",
+      image_url: testimonialImage1,
       quote:
         "Kami suka Xine karena desainnya netral, elegan, dan nggak norak. Perfect untuk pasangan yang suka tampil serasi tapi tetap punya karakter masing-masing.",
-      names: "Rina & Dimas",
+      couple_names: "Rina & Dimas",
       occasion: "Anniversary Photoshoot",
+      is_active: true,
+      display_order: 0,
     },
     {
-      id: 2,
-      image: testimonialImage2,
+      id: "2",
+      image_url: testimonialImage2,
       quote:
         "Xine memberikan kami pilihan yang berbeda dari brand lain. Kualitas bahan luar biasa, dan desainnya timeless. Kami bisa pakai berulang kali tanpa bosan.",
-      names: "Sarah & Andi",
+      couple_names: "Sarah & Andi",
       occasion: "Casual Weekend",
+      is_active: true,
+      display_order: 1,
     },
     {
-      id: 3,
-      image: testimonialImage3,
+      id: "3",
+      image_url: testimonialImage3,
       quote:
         "Dari pertama lihat, langsung jatuh cinta sama konsep Xine. Simpel tapi berkelas. Cocok banget buat kami yang suka gaya minimalis.",
-      names: "Maya & Rizki",
+      couple_names: "Maya & Rizki",
       occasion: "Daily Wear",
+      is_active: true,
+      display_order: 2,
     },
   ];
 
+  const displayTestimonials = testimonials.length > 0 ? testimonials : fallbackTestimonials;
+
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    setCurrentIndex((prev) => (prev + 1) % displayTestimonials.length);
   };
 
   const prevSlide = () => {
     setCurrentIndex(
-      (prev) => (prev - 1 + testimonials.length) % testimonials.length
+      (prev) => (prev - 1 + displayTestimonials.length) % displayTestimonials.length
     );
   };
 
   useEffect(() => {
+    if (displayTestimonials.length === 0) return;
     const interval = setInterval(nextSlide, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [displayTestimonials]);
+
+  if (loading) {
+    return (
+      <section id="stories" className="py-24 md:py-32 bg-accent/20">
+        <div className="container mx-auto px-6">
+          <div className="text-center py-12">Memuat testimonial...</div>
+        </div>
+      </section>
+    );
+  }
+
+  if (displayTestimonials.length === 0) {
+    return null;
+  }
 
   return (
     <section id="stories" className="py-24 md:py-32 bg-accent/20">
@@ -68,8 +126,8 @@ const Testimonials = () => {
           <div className="relative aspect-[16/9] md:aspect-[21/9] overflow-hidden rounded-2xl shadow-elegant">
             {/* Background Image */}
             <img
-              src={testimonials[currentIndex].image}
-              alt={testimonials[currentIndex].names}
+              src={displayTestimonials[currentIndex].image_url || testimonialImage1}
+              alt={displayTestimonials[currentIndex].couple_names}
               className="absolute inset-0 w-full h-full object-cover"
             />
 
@@ -79,15 +137,15 @@ const Testimonials = () => {
             {/* Content */}
             <div className="relative h-full flex flex-col justify-end p-8 md:p-12 fade-in">
               <p className="text-lg md:text-2xl text-background font-light italic mb-6 leading-relaxed">
-                "{testimonials[currentIndex].quote}"
+                "{displayTestimonials[currentIndex].quote}"
               </p>
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-background font-semibold text-lg">
-                    {testimonials[currentIndex].names}
+                    {displayTestimonials[currentIndex].couple_names}
                   </p>
                   <p className="text-background/80 text-sm">
-                    {testimonials[currentIndex].occasion}
+                    {displayTestimonials[currentIndex].occasion}
                   </p>
                 </div>
               </div>
@@ -112,7 +170,7 @@ const Testimonials = () => {
 
           {/* Indicators */}
           <div className="flex justify-center gap-2 mt-6">
-            {testimonials.map((_, index) => (
+            {displayTestimonials.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}

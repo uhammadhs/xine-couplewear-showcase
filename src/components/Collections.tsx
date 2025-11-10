@@ -1,48 +1,73 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import casualImage from "@/assets/collection-casual.jpg";
 import classicImage from "@/assets/collection-classic.jpg";
 
+type Product = {
+  id: string;
+  title: string;
+  category: string;
+  description: string | null;
+  for_him: string | null;
+  for_her: string | null;
+  image_url: string | null;
+  is_active: boolean;
+  display_order: number;
+};
+
 const Collections = () => {
   const [activeFilter, setActiveFilter] = useState("all");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const collections = [
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
+        .order("display_order", { ascending: true });
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fallback products if database is empty
+  const fallbackProducts = [
     {
-      id: 1,
+      id: "1",
       title: "Casual Harmony",
       category: "casual",
-      image: casualImage,
       description: "Gaya santai yang tetap serasi",
-      forHim: "Relaxed Fit Shirt",
-      forHer: "Comfort Blouse",
+      for_him: "Relaxed Fit Shirt",
+      for_her: "Comfort Blouse",
+      image_url: casualImage,
+      is_active: true,
+      display_order: 0,
     },
     {
-      id: 2,
+      id: "2",
       title: "Classic Elegance",
       category: "classic",
-      image: classicImage,
       description: "Elegan untuk momen istimewa",
-      forHim: "Tailored Blazer",
-      forHer: "Structured Coat",
-    },
-    {
-      id: 3,
-      title: "Minimal Chic",
-      category: "casual",
-      image: casualImage,
-      description: "Kesederhanaan yang memesona",
-      forHim: "Basic Tee Premium",
-      forHer: "Essential Top",
-    },
-    {
-      id: 4,
-      title: "Evening Grace",
-      category: "classic",
-      image: classicImage,
-      description: "Kemewahan yang terjaga",
-      forHim: "Formal Shirt",
-      forHer: "Evening Dress",
+      for_him: "Tailored Blazer",
+      for_her: "Structured Coat",
+      image_url: classicImage,
+      is_active: true,
+      display_order: 1,
     },
   ];
+
+  const displayProducts = products.length > 0 ? products : fallbackProducts;
 
   const filters = [
     { label: "Semua", value: "all" },
@@ -52,8 +77,18 @@ const Collections = () => {
 
   const filteredCollections =
     activeFilter === "all"
-      ? collections
-      : collections.filter((item) => item.category === activeFilter);
+      ? displayProducts
+      : displayProducts.filter((item) => item.category === activeFilter);
+
+  if (loading) {
+    return (
+      <section id="collections" className="py-24 md:py-32 bg-background">
+        <div className="container mx-auto px-6">
+          <div className="text-center py-12">Memuat koleksi...</div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="collections" className="py-24 md:py-32 bg-background">
@@ -96,7 +131,7 @@ const Collections = () => {
               {/* Image */}
               <div className="aspect-[4/5] overflow-hidden">
                 <img
-                  src={collection.image}
+                  src={collection.image_url || casualImage}
                   alt={collection.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
@@ -111,8 +146,8 @@ const Collections = () => {
                   {collection.description}
                 </p>
                 <div className="flex justify-between text-sm text-background/80">
-                  <span>For Him: {collection.forHim}</span>
-                  <span>For Her: {collection.forHer}</span>
+                  <span>For Him: {collection.for_him}</span>
+                  <span>For Her: {collection.for_her}</span>
                 </div>
               </div>
 
