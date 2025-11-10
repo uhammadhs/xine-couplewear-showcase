@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import aboutImage from "@/assets/about-studio.jpg";
 
@@ -13,6 +15,7 @@ type AboutContent = {
 const About = () => {
   const [content, setContent] = useState<AboutContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     fetchContent();
@@ -76,10 +79,13 @@ const About = () => {
           {/* Image */}
           <div className="relative fade-in">
             <div className="aspect-[4/3] overflow-hidden rounded-lg shadow-elegant">
+              {!imageLoaded && <Skeleton className="w-full h-full" />}
               <img
                 src={content?.image_url?.startsWith('http') ? content.image_url : aboutImage}
                 alt="Xine Studio - Where Love Meets Design"
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                loading="lazy"
+                onLoad={() => setImageLoaded(true)}
               />
             </div>
             {/* Decorative Element */}

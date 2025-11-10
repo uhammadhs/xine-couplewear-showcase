@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 
 type Product = {
@@ -17,6 +18,7 @@ const Collections = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchProducts();
@@ -101,11 +103,16 @@ const Collections = () => {
             >
               {/* Image */}
               <div className="aspect-[4/5] overflow-hidden bg-muted">
+                {!loadedImages.has(collection.id) && (
+                  <Skeleton className="w-full h-full" />
+                )}
                 {collection.image_url?.startsWith('http') && (
                   <img
                     src={collection.image_url}
                     alt={collection.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    loading="lazy"
+                    onLoad={() => setLoadedImages(prev => new Set([...prev, collection.id]))}
                   />
                 )}
               </div>

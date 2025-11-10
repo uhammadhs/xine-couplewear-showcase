@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import journalImage from "@/assets/journal-bts.jpg";
 
@@ -17,6 +18,7 @@ type JournalContent = {
 const Journal = () => {
   const [content, setContent] = useState<JournalContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     fetchContent();
@@ -75,10 +77,13 @@ const Journal = () => {
           {/* Image */}
           <div className="relative fade-in order-2 md:order-1">
             <div className="aspect-[4/3] overflow-hidden rounded-lg shadow-elegant">
+              {!imageLoaded && <Skeleton className="w-full h-full" />}
               <img
                 src={content?.image_url?.startsWith('http') ? content.image_url : journalImage}
                 alt="Behind the Design - Xine Journal"
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                loading="lazy"
+                onLoad={() => setImageLoaded(true)}
               />
             </div>
             {/* Decorative Frame */}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import heroImage from "@/assets/hero-couple.jpg";
 
@@ -17,6 +18,7 @@ type HeroContent = {
 const Hero = () => {
   const [content, setContent] = useState<HeroContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     fetchContent();
@@ -67,10 +69,15 @@ const Hero = () => {
     <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
+        {!imageLoaded && (
+          <Skeleton className="w-full h-full" />
+        )}
         <img
           src={content?.image_url?.startsWith('http') ? content.image_url : heroImage}
           alt="Xine Couplewear - Together in Style"
           className="w-full h-full object-cover"
+          loading="lazy"
+          onLoad={() => setImageLoaded(true)}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/20 to-background/60"></div>
       </div>

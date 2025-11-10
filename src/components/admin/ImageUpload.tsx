@@ -21,6 +21,59 @@ const ImageUpload = ({
 }: ImageUploadProps) => {
   const [uploading, setUploading] = useState(false);
 
+  const compressImage = async (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            reject(new Error("Cannot get canvas context"));
+            return;
+          }
+
+          // Calculate new dimensions (max 1920px)
+          let width = img.width;
+          let height = img.height;
+          const maxSize = 1920;
+
+          if (width > maxSize || height > maxSize) {
+            if (width > height) {
+              height = (height * maxSize) / width;
+              width = maxSize;
+            } else {
+              width = (width * maxSize) / height;
+              height = maxSize;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          // Draw and compress
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                reject(new Error("Compression failed"));
+              }
+            },
+            "image/jpeg",
+            0.85
+          );
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
+    });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -35,27 +88,31 @@ const ImageUpload = ({
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Error",
-        description: "Ukuran file maksimal 5MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setUploading(true);
 
     try {
-      const fileExt = file.name.split(".").pop();
+      // Compress and optimize image
+      const compressedBlob = await compressImage(file);
+      
+      // Check compressed size (max 2MB after compression)
+      if (compressedBlob.size > 2 * 1024 * 1024) {
+        toast({
+          title: "Warning",
+          description: "Gambar terlalu besar, mencoba compress lebih lanjut...",
+        });
+      }
+
+      const fileExt = "jpg"; // Always save as JPG after compression
       const fileName = `${folder}/${Date.now()}-${Math.random()
         .toString(36)
         .substring(7)}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("images")
-        .upload(fileName, file);
+        .upload(fileName, compressedBlob, {
+          contentType: "image/jpeg",
+          cacheControl: "3600",
+        });
 
       if (uploadError) throw uploadError;
 
@@ -67,7 +124,7 @@ const ImageUpload = ({
 
       toast({
         title: "Berhasil",
-        description: "Gambar berhasil diupload",
+        description: "Gambar berhasil dioptimasi dan diupload",
       });
     } catch (error) {
       console.error("Error uploading image:", error);

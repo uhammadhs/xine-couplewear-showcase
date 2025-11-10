@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 
 type Testimonial = {
@@ -16,6 +17,7 @@ const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     fetchTestimonials();
@@ -38,19 +40,24 @@ const Testimonials = () => {
     }
   };
 
-  const nextSlide = () => {
+  const nextTestimonial = () => {
     setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    setImageLoaded(false);
   };
 
-  const prevSlide = () => {
-    setCurrentIndex(
-      (prev) => (prev - 1 + testimonials.length) % testimonials.length
+  const prevTestimonial = () => {
+    setCurrentIndex((prev) =>
+      prev === 0 ? testimonials.length - 1 : prev - 1
     );
+    setImageLoaded(false);
   };
 
   useEffect(() => {
     if (testimonials.length === 0) return;
-    const interval = setInterval(nextSlide, 5000);
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+      setImageLoaded(false);
+    }, 5000);
     return () => clearInterval(interval);
   }, [testimonials]);
 
@@ -86,11 +93,14 @@ const Testimonials = () => {
         <div className="relative max-w-4xl mx-auto">
           <div className="relative aspect-[16/9] md:aspect-[21/9] overflow-hidden rounded-2xl shadow-elegant">
             {/* Background Image */}
+            {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full" />}
             {testimonials[currentIndex].image_url?.startsWith('http') && (
               <img
                 src={testimonials[currentIndex].image_url}
                 alt={testimonials[currentIndex].couple_names}
                 className="absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
+                onLoad={() => setImageLoaded(true)}
               />
             )}
 
@@ -117,14 +127,14 @@ const Testimonials = () => {
 
           {/* Navigation Buttons */}
           <button
-            onClick={prevSlide}
+            onClick={prevTestimonial}
             className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm p-3 rounded-full hover:bg-background transition-all duration-300 shadow-md"
             aria-label="Previous testimonial"
           >
             <ChevronLeft className="text-primary" />
           </button>
           <button
-            onClick={nextSlide}
+            onClick={nextTestimonial}
             className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm p-3 rounded-full hover:bg-background transition-all duration-300 shadow-md"
             aria-label="Next testimonial"
           >
