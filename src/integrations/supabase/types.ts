@@ -113,6 +113,57 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          button_link: string | null
+          button_text: string | null
+          created_at: string | null
+          description: string | null
+          description_2: string | null
+          description_3: string | null
+          extra_data: Json | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          section: string
+          subtitle: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          button_link?: string | null
+          button_text?: string | null
+          created_at?: string | null
+          description?: string | null
+          description_2?: string | null
+          description_3?: string | null
+          extra_data?: Json | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          section: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          button_link?: string | null
+          button_text?: string | null
+          created_at?: string | null
+          description?: string | null
+          description_2?: string | null
+          description_3?: string | null
+          extra_data?: Json | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          section?: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           couple_names: string

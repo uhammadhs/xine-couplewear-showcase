@@ -8,6 +8,7 @@ import { LogOut } from "lucide-react";
 import ProductsManagement from "@/components/admin/ProductsManagement";
 import TestimonialsManagement from "@/components/admin/TestimonialsManagement";
 import MessagesManagement from "@/components/admin/MessagesManagement";
+import SiteSettingsManagement from "@/components/admin/SiteSettingsManagement";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -54,10 +55,11 @@ const Admin = () => {
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="products">Produk</TabsTrigger>
             <TabsTrigger value="testimonials">Testimonial</TabsTrigger>
             <TabsTrigger value="messages">Pesan</TabsTrigger>
+            <TabsTrigger value="settings">Konten Situs</TabsTrigger>
           </TabsList>
 
           <TabsContent value="products" className="space-y-4">
@@ -70,6 +72,10 @@ const Admin = () => {
 
           <TabsContent value="messages" className="space-y-4">
             <MessagesManagement />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-4">
+            <SiteSettingsManagement />
           </TabsContent>
         </Tabs>
       </div>

@@ -1,6 +1,57 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import aboutImage from "@/assets/about-studio.jpg";
 
+type AboutContent = {
+  title: string;
+  description: string;
+  description_2: string;
+  description_3: string;
+  image_url: string;
+};
+
 const About = () => {
+  const [content, setContent] = useState<AboutContent | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchContent();
+  }, []);
+
+  const fetchContent = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("*")
+        .eq("section", "about")
+        .eq("is_active", true)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setContent({
+          title: data.title || "",
+          description: data.description || "",
+          description_2: data.description_2 || "",
+          description_3: data.description_3 || "",
+          image_url: data.image_url || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching about content:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <section className="py-24 md:py-32 bg-muted/30">
+        <div className="container mx-auto px-6 text-center">Memuat...</div>
+      </section>
+    );
+  }
+
   return (
     <section id="about" className="py-24 md:py-32 bg-muted/30">
       <div className="container mx-auto px-6">
@@ -8,23 +59,17 @@ const About = () => {
           {/* Text Content */}
           <div className="space-y-6 slide-up">
             <h2 className="text-4xl md:text-5xl font-bold text-primary">
-              Tentang Xine
+              {content?.title || "Tentang Xine"}
             </h2>
             <div className="w-20 h-1 bg-accent"></div>
             <p className="text-lg text-foreground/80 leading-relaxed">
-              Xine lahir dari ide sederhana — bahwa cinta bisa ditunjukkan
-              melalui gaya berpakaian yang serasi dan saling melengkapi.
+              {content?.description || ""}
             </p>
             <p className="text-base text-muted-foreground leading-relaxed">
-              Kami menciptakan koleksi couplewear yang tidak hanya indah
-              dipandang, tetapi juga nyaman dikenakan. Setiap desain kami
-              dirancang dengan detail yang teliti, memadukan estetika minimalis
-              dengan sentuhan romantis yang elegan.
+              {content?.description_2 || ""}
             </p>
             <p className="text-base text-muted-foreground leading-relaxed">
-              Xine bukan sekadar pakaian — ini adalah cara untuk merayakan
-              kebersamaan, mengekspresikan keharmonisan, dan menunjukkan bahwa
-              cinta bisa terlihat dalam setiap detail.
+              {content?.description_3 || ""}
             </p>
           </div>
 
@@ -32,7 +77,7 @@ const About = () => {
           <div className="relative fade-in">
             <div className="aspect-[4/3] overflow-hidden rounded-lg shadow-elegant">
               <img
-                src={aboutImage}
+                src={content?.image_url || aboutImage}
                 alt="Xine Studio - Where Love Meets Design"
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
               />

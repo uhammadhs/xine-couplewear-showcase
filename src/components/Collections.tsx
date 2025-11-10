@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import casualImage from "@/assets/collection-casual.jpg";
-import classicImage from "@/assets/collection-classic.jpg";
 
 type Product = {
   id: string;
@@ -41,33 +39,6 @@ const Collections = () => {
     }
   };
 
-  // Fallback products if database is empty
-  const fallbackProducts = [
-    {
-      id: "1",
-      title: "Casual Harmony",
-      category: "casual",
-      description: "Gaya santai yang tetap serasi",
-      for_him: "Relaxed Fit Shirt",
-      for_her: "Comfort Blouse",
-      image_url: casualImage,
-      is_active: true,
-      display_order: 0,
-    },
-    {
-      id: "2",
-      title: "Classic Elegance",
-      category: "classic",
-      description: "Elegan untuk momen istimewa",
-      for_him: "Tailored Blazer",
-      for_her: "Structured Coat",
-      image_url: classicImage,
-      is_active: true,
-      display_order: 1,
-    },
-  ];
-
-  const displayProducts = products.length > 0 ? products : fallbackProducts;
 
   const filters = [
     { label: "Semua", value: "all" },
@@ -77,8 +48,8 @@ const Collections = () => {
 
   const filteredCollections =
     activeFilter === "all"
-      ? displayProducts
-      : displayProducts.filter((item) => item.category === activeFilter);
+      ? products
+      : products.filter((item) => item.category === activeFilter);
 
   if (loading) {
     return (
@@ -131,7 +102,7 @@ const Collections = () => {
               {/* Image */}
               <div className="aspect-[4/5] overflow-hidden">
                 <img
-                  src={collection.image_url || casualImage}
+                  src={collection.image_url || ""}
                   alt={collection.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
