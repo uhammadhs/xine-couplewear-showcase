@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import testimonialImage from "@/assets/testimonial-1.jpg";
+import testimonialImage1 from "@/assets/testimonial-1.jpg";
+import testimonialImage2 from "@/assets/testimonial-2.jpg";
+import testimonialImage3 from "@/assets/testimonial-3.jpg";
 
 const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -8,7 +10,7 @@ const Testimonials = () => {
   const testimonials = [
     {
       id: 1,
-      image: testimonialImage,
+      image: testimonialImage1,
       quote:
         "Kami suka Xine karena desainnya netral, elegan, dan nggak norak. Perfect untuk pasangan yang suka tampil serasi tapi tetap punya karakter masing-masing.",
       names: "Rina & Dimas",
@@ -16,7 +18,7 @@ const Testimonials = () => {
     },
     {
       id: 2,
-      image: testimonialImage,
+      image: testimonialImage2,
       quote:
         "Xine memberikan kami pilihan yang berbeda dari brand lain. Kualitas bahan luar biasa, dan desainnya timeless. Kami bisa pakai berulang kali tanpa bosan.",
       names: "Sarah & Andi",
@@ -24,7 +26,7 @@ const Testimonials = () => {
     },
     {
       id: 3,
-      image: testimonialImage,
+      image: testimonialImage3,
       quote:
         "Dari pertama lihat, langsung jatuh cinta sama konsep Xine. Simpel tapi berkelas. Cocok banget buat kami yang suka gaya minimalis.",
       names: "Maya & Rizki",
