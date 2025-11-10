@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from "sonner";
 import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 const testimonialSchema = z.object({
   couple_names: z.string().trim().min(1, "Nama pasangan wajib diisi").max(200, "Maksimal 200 karakter"),
@@ -201,15 +202,12 @@ const TestimonialsManagement = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">URL Gambar</label>
-                <Input
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  type="url"
-                />
-              </div>
+              <ImageUpload
+                currentImageUrl={formData.image_url}
+                onImageUrlChange={(url) => setFormData({ ...formData, image_url: url })}
+                folder="testimonials"
+                label="Gambar Testimonial"
+              />
 
               <div className="flex justify-end gap-2 pt-4">
                 <Button

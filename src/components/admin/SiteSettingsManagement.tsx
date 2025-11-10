@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2, Save } from "lucide-react";
+import ImageUpload from "@/components/admin/ImageUpload";
 import {
   Card,
   CardContent,
@@ -183,16 +184,12 @@ const SiteSettingsManagement = () => {
                 }
               />
             </div>
-            <div>
-              <Label htmlFor="hero-image">Image URL</Label>
-              <Input
-                id="hero-image"
-                value={settings.hero?.image_url || ""}
-                onChange={(e) =>
-                  updateSetting("hero", "image_url", e.target.value)
-                }
-              />
-            </div>
+            <ImageUpload
+              currentImageUrl={settings.hero?.image_url || ""}
+              onImageUrlChange={(url) => updateSetting("hero", "image_url", url)}
+              folder="hero"
+              label="Hero Image"
+            />
             <div>
               <Label htmlFor="hero-button1">Button 1 Text</Label>
               <Input
@@ -277,16 +274,12 @@ const SiteSettingsManagement = () => {
                 }
               />
             </div>
-            <div>
-              <Label htmlFor="about-image">Image URL</Label>
-              <Input
-                id="about-image"
-                value={settings.about?.image_url || ""}
-                onChange={(e) =>
-                  updateSetting("about", "image_url", e.target.value)
-                }
-              />
-            </div>
+            <ImageUpload
+              currentImageUrl={settings.about?.image_url || ""}
+              onImageUrlChange={(url) => updateSetting("about", "image_url", url)}
+              folder="about"
+              label="About Image"
+            />
             <Button
               onClick={() => handleUpdate("about")}
               disabled={saving === "about"}
@@ -351,16 +344,12 @@ const SiteSettingsManagement = () => {
                 }
               />
             </div>
-            <div>
-              <Label htmlFor="journal-image">Image URL</Label>
-              <Input
-                id="journal-image"
-                value={settings.journal?.image_url || ""}
-                onChange={(e) =>
-                  updateSetting("journal", "image_url", e.target.value)
-                }
-              />
-            </div>
+            <ImageUpload
+              currentImageUrl={settings.journal?.image_url || ""}
+              onImageUrlChange={(url) => updateSetting("journal", "image_url", url)}
+              folder="journal"
+              label="Journal Image"
+            />
             <div>
               <Label htmlFor="journal-button">Button Text</Label>
               <Input
