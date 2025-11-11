@@ -133,23 +133,25 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden mt-4 py-4 border-t border-border fade-in">
+          <div className="md:hidden mt-4 py-4 border-t border-border fade-in bg-background/95 backdrop-blur-lg rounded-lg">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
-                className="block w-full text-left py-3 text-foreground hover:text-primary transition-colors duration-300"
+                className="block w-full text-left py-3 px-4 text-foreground hover:text-primary hover:bg-muted/50 transition-all duration-300 font-medium"
               >
                 {item.label}
               </button>
             ))}
-            <Button
-              variant="outline"
-              className="w-full mt-4"
-              onClick={() => scrollToSection("contact")}
-            >
-              Hubungi Kami
-            </Button>
+            <div className="px-4">
+              <Button
+                variant="outline"
+                className="w-full mt-4"
+                onClick={() => scrollToSection("contact")}
+              >
+                Hubungi Kami
+              </Button>
+            </div>
           </div>
         )}
       </div>

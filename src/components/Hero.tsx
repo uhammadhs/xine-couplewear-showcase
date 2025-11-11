@@ -84,13 +84,13 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 text-center fade-in">
-        <h1 className="text-5xl md:text-7xl font-bold text-primary mb-6 leading-tight">
+        <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
           {content?.title || "Together in Style"}
         </h1>
-        <p className="text-xl md:text-2xl text-foreground/90 mb-4 font-light">
+        <p className="text-xl md:text-2xl text-white mb-4 font-light drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]">
           {content?.subtitle || "Xine Couplewear"}
         </p>
-        <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-12">
+        <p className="text-base md:text-lg text-white/95 max-w-2xl mx-auto mb-12 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
           {content?.description || "Kami percaya cinta tak perlu diucap — cukup dikenakan."}
         </p>
 
