@@ -139,13 +139,53 @@ const SiteSettingsManagement = () => {
   }
 
   return (
-    <Tabs defaultValue="hero" className="w-full">
-      <TabsList className="grid w-full grid-cols-4">
+    <Tabs defaultValue="logo" className="w-full">
+      <TabsList className="grid w-full grid-cols-5">
+        <TabsTrigger value="logo">Logo</TabsTrigger>
         <TabsTrigger value="hero">Hero</TabsTrigger>
         <TabsTrigger value="about">About</TabsTrigger>
         <TabsTrigger value="journal">Journal</TabsTrigger>
         <TabsTrigger value="footer">Footer</TabsTrigger>
       </TabsList>
+
+      <TabsContent value="logo">
+        <Card>
+          <CardHeader>
+            <CardTitle>Logo Settings</CardTitle>
+            <CardDescription>
+              Upload logo untuk navbar website
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="logo-title">Brand Name (fallback text)</Label>
+              <Input
+                id="logo-title"
+                value={settings.logo?.title || ""}
+                onChange={(e) => updateSetting("logo", "title", e.target.value)}
+                placeholder="XINE"
+              />
+            </div>
+            <ImageUpload
+              currentImageUrl={settings.logo?.image_url || ""}
+              onImageUrlChange={(url) => updateSetting("logo", "image_url", url)}
+              folder="logo"
+              label="Logo Image"
+            />
+            <Button
+              onClick={() => handleUpdate("logo")}
+              disabled={saving === "logo"}
+            >
+              {saving === "logo" ? (
+                <Loader2 className="animate-spin mr-2" size={16} />
+              ) : (
+                <Save className="mr-2" size={16} />
+              )}
+              Simpan
+            </Button>
+          </CardContent>
+        </Card>
+      </TabsContent>
 
       <TabsContent value="hero">
         <Card>
