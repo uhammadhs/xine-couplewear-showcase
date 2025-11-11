@@ -25,27 +25,30 @@ const Admin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
       {/* Header */}
-      <header className="bg-background border-b border-border sticky top-0 z-10 shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+      <header className="bg-background/95 backdrop-blur-lg border-b border-border sticky top-0 z-10 shadow-sm">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-primary">XINE Admin</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="text-xl sm:text-2xl font-bold text-primary">XINE Admin</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Dashboard Manajemen
               </p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => navigate("/")}
+                className="flex-1 sm:flex-none"
               >
-                Lihat Website
+                <span className="hidden sm:inline">Lihat Website</span>
+                <span className="sm:hidden">Website</span>
               </Button>
-              <Button variant="ghost" onClick={handleLogout}>
-                <LogOut className="mr-2" size={18} />
-                Logout
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="flex-1 sm:flex-none">
+                <LogOut className="mr-0 sm:mr-2" size={18} />
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
@@ -53,30 +56,40 @@ const Admin = () => {
       </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="products">Produk</TabsTrigger>
-            <TabsTrigger value="testimonials">Testimonial</TabsTrigger>
-            <TabsTrigger value="messages">Pesan</TabsTrigger>
-            <TabsTrigger value="settings">Konten Situs</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 sm:mb-8 h-auto gap-2 bg-muted/50 p-1">
+            <TabsTrigger value="products" className="text-xs sm:text-sm py-2 data-[state=active]:bg-background data-[state=active]:shadow-md">
+              Produk
+            </TabsTrigger>
+            <TabsTrigger value="testimonials" className="text-xs sm:text-sm py-2 data-[state=active]:bg-background data-[state=active]:shadow-md">
+              Testimonial
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="text-xs sm:text-sm py-2 data-[state=active]:bg-background data-[state=active]:shadow-md">
+              Pesan
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs sm:text-sm py-2 data-[state=active]:bg-background data-[state=active]:shadow-md">
+              Konten
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="products" className="space-y-4">
-            <ProductsManagement />
-          </TabsContent>
+          <div className="bg-background/50 backdrop-blur-sm rounded-lg border border-border shadow-lg p-4 sm:p-6">
+            <TabsContent value="products" className="space-y-4 mt-0">
+              <ProductsManagement />
+            </TabsContent>
 
-          <TabsContent value="testimonials" className="space-y-4">
-            <TestimonialsManagement />
-          </TabsContent>
+            <TabsContent value="testimonials" className="space-y-4 mt-0">
+              <TestimonialsManagement />
+            </TabsContent>
 
-          <TabsContent value="messages" className="space-y-4">
-            <MessagesManagement />
-          </TabsContent>
+            <TabsContent value="messages" className="space-y-4 mt-0">
+              <MessagesManagement />
+            </TabsContent>
 
-          <TabsContent value="settings" className="space-y-4">
-            <SiteSettingsManagement />
-          </TabsContent>
+            <TabsContent value="settings" className="space-y-4 mt-0">
+              <SiteSettingsManagement />
+            </TabsContent>
+          </div>
         </Tabs>
       </div>
     </div>

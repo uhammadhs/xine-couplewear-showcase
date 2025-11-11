@@ -21,7 +21,7 @@ const ImageUpload = ({
 }: ImageUploadProps) => {
   const [uploading, setUploading] = useState(false);
 
-  const compressImage = async (file: File): Promise<Blob> => {
+  const compressImage = async (file: File): Promise<{ blob: Blob; ext: string }> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -54,18 +54,32 @@ const ImageUpload = ({
           canvas.width = width;
           canvas.height = height;
 
-          // Draw and compress
+          // Fill white background for JPG, transparent for PNG
+          const isPng = file.type === "image/png" || file.name.toLowerCase().endsWith('.png');
+          
+          if (!isPng) {
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(0, 0, width, height);
+          }
+
+          // Draw image
           ctx.drawImage(img, 0, 0, width, height);
+          
+          // Use PNG for transparent images, JPEG for others
+          const outputFormat = isPng ? "image/png" : "image/jpeg";
+          const quality = isPng ? 0.95 : 0.85;
+          const ext = isPng ? "png" : "jpg";
+
           canvas.toBlob(
             (blob) => {
               if (blob) {
-                resolve(blob);
+                resolve({ blob, ext });
               } else {
                 reject(new Error("Compression failed"));
               }
             },
-            "image/jpeg",
-            0.85
+            outputFormat,
+            quality
           );
         };
         img.onerror = reject;
@@ -92,7 +106,7 @@ const ImageUpload = ({
 
     try {
       // Compress and optimize image
-      const compressedBlob = await compressImage(file);
+      const { blob: compressedBlob, ext: fileExt } = await compressImage(file);
       
       // Check compressed size (max 2MB after compression)
       if (compressedBlob.size > 2 * 1024 * 1024) {
@@ -102,15 +116,16 @@ const ImageUpload = ({
         });
       }
 
-      const fileExt = "jpg"; // Always save as JPG after compression
       const fileName = `${folder}/${Date.now()}-${Math.random()
         .toString(36)
         .substring(7)}.${fileExt}`;
 
+      const contentType = fileExt === "png" ? "image/png" : "image/jpeg";
+
       const { error: uploadError } = await supabase.storage
         .from("images")
         .upload(fileName, compressedBlob, {
-          contentType: "image/jpeg",
+          contentType,
           cacheControl: "3600",
         });
 
