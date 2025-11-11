@@ -54,7 +54,9 @@ export type Database = {
           for_him: string | null
           id: string
           image_url: string | null
+          images: Json | null
           is_active: boolean | null
+          purchase_link: string | null
           title: string
           updated_at: string | null
         }
@@ -67,7 +69,9 @@ export type Database = {
           for_him?: string | null
           id?: string
           image_url?: string | null
+          images?: Json | null
           is_active?: boolean | null
+          purchase_link?: string | null
           title: string
           updated_at?: string | null
         }
@@ -80,7 +84,9 @@ export type Database = {
           for_him?: string | null
           id?: string
           image_url?: string | null
+          images?: Json | null
           is_active?: boolean | null
+          purchase_link?: string | null
           title?: string
           updated_at?: string | null
         }

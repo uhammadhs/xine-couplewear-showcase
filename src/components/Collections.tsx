@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { ShoppingBag } from "lucide-react";
+
+type ImageItem = {
+  url: string;
+  is_primary?: boolean;
+};
 
 type Product = {
   id: string;
@@ -10,6 +17,8 @@ type Product = {
   for_him: string | null;
   for_her: string | null;
   image_url: string | null;
+  images: ImageItem[];
+  purchase_link: string | null;
   is_active: boolean;
   display_order: number;
 };
@@ -33,7 +42,13 @@ const Collections = () => {
         .order("display_order", { ascending: true });
 
       if (error) throw error;
-      setProducts(data || []);
+      
+      const transformedData = (data || []).map(item => ({
+        ...item,
+        images: (item.images as any as ImageItem[]) || []
+      }));
+      
+      setProducts(transformedData);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -96,49 +111,74 @@ const Collections = () => {
 
         {/* Collections Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
-          {filteredCollections.map((collection) => (
-            <div
-              key={collection.id}
-              className="group relative overflow-hidden rounded-lg shadow-soft hover:shadow-elegant transition-all duration-500 fade-in"
-            >
-              {/* Image */}
-              <div className="aspect-[4/5] overflow-hidden bg-muted">
-                {!loadedImages.has(collection.id) && (
-                  <Skeleton className="w-full h-full" />
-                )}
-                {collection.image_url?.startsWith('http') && (
-                  <img
-                    src={collection.image_url}
-                    alt={collection.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    loading="lazy"
-                    onLoad={() => setLoadedImages(prev => new Set([...prev, collection.id]))}
-                  />
-                )}
-              </div>
-
-              {/* Overlay Content */}
-              <div className="absolute inset-0 bg-gradient-to-t from-elegant-dark/90 via-elegant-dark/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                <h3 className="text-2xl font-bold text-background mb-2">
-                  {collection.title}
-                </h3>
-                <p className="text-background/90 mb-4">
-                  {collection.description}
-                </p>
-                <div className="flex justify-between text-sm text-background/80">
-                  <span>For Him: {collection.for_him}</span>
-                  <span>For Her: {collection.for_her}</span>
+          {filteredCollections.map((collection) => {
+            const primaryImage = collection.images?.find(img => img.is_primary) || collection.images?.[0];
+            const displayImage = primaryImage?.url || collection.image_url;
+            
+            return (
+              <div
+                key={collection.id}
+                className="group relative overflow-hidden rounded-lg shadow-soft hover:shadow-elegant transition-all duration-500 fade-in"
+              >
+                {/* Image */}
+                <div className="aspect-[4/5] overflow-hidden bg-muted">
+                  {!loadedImages.has(collection.id) && (
+                    <Skeleton className="w-full h-full" />
+                  )}
+                  {displayImage?.startsWith('http') && (
+                    <img
+                      src={displayImage}
+                      alt={collection.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      loading="lazy"
+                      onLoad={() => setLoadedImages(prev => new Set([...prev, collection.id]))}
+                    />
+                  )}
                 </div>
-              </div>
 
-              {/* Label */}
-              <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm px-4 py-2 rounded-full">
-                <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                  {collection.category}
-                </span>
+                {/* Overlay Content */}
+                <div className="absolute inset-0 bg-gradient-to-t from-elegant-dark/90 via-elegant-dark/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                  <h3 className="text-2xl font-bold text-white mb-2">
+                    {collection.title}
+                  </h3>
+                  <p className="text-white/90 mb-2 text-sm">
+                    {collection.description}
+                  </p>
+                  <div className="flex justify-between text-xs text-white/80 mb-4">
+                    <span>For Him: {collection.for_him}</span>
+                    <span>For Her: {collection.for_her}</span>
+                  </div>
+                  
+                  {/* Buy Button */}
+                  {collection.purchase_link && (
+                    <Button
+                      onClick={() => window.open(collection.purchase_link!, '_blank')}
+                      className="w-full bg-white text-primary hover:bg-white/90 transition-colors"
+                    >
+                      <ShoppingBag className="mr-2" size={18} />
+                      Beli Sekarang
+                    </Button>
+                  )}
+                </div>
+
+                {/* Label */}
+                <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm px-4 py-2 rounded-full">
+                  <span className="text-xs font-medium text-primary uppercase tracking-wide">
+                    {collection.category}
+                  </span>
+                </div>
+
+                {/* Image Count Badge */}
+                {collection.images && collection.images.length > 1 && (
+                  <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                    <span className="text-xs font-medium text-primary">
+                      {collection.images.length} Foto
+                    </span>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

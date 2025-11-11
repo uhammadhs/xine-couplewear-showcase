@@ -8,7 +8,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from "sonner";
 import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
-import ImageUpload from "@/components/admin/ImageUpload";
+import MultipleImageUpload from "@/components/admin/MultipleImageUpload";
+
+type ImageItem = {
+  url: string;
+  is_primary?: boolean;
+};
 
 const productSchema = z.object({
   title: z.string().trim().min(1, "Judul wajib diisi").max(200, "Judul maksimal 200 karakter"),
@@ -16,7 +21,7 @@ const productSchema = z.object({
   description: z.string().trim().max(500, "Deskripsi maksimal 500 karakter").optional(),
   for_him: z.string().trim().max(200, "Maksimal 200 karakter").optional(),
   for_her: z.string().trim().max(200, "Maksimal 200 karakter").optional(),
-  image_url: z.string().trim().url("URL gambar tidak valid").optional().or(z.literal("")),
+  purchase_link: z.string().trim().url("Link pembelian tidak valid").optional().or(z.literal("")),
 });
 
 type Product = {
@@ -27,6 +32,8 @@ type Product = {
   for_him: string | null;
   for_her: string | null;
   image_url: string | null;
+  images: ImageItem[];
+  purchase_link: string | null;
   is_active: boolean;
   display_order: number;
 };
@@ -42,7 +49,8 @@ const ProductsManagement = () => {
     description: "",
     for_him: "",
     for_her: "",
-    image_url: "",
+    purchase_link: "",
+    images: [] as ImageItem[],
   });
 
   useEffect(() => {
@@ -57,7 +65,13 @@ const ProductsManagement = () => {
         .order("display_order", { ascending: true });
 
       if (error) throw error;
-      setProducts(data || []);
+      
+      const transformedData = (data || []).map(item => ({
+        ...item,
+        images: (item.images as any as ImageItem[]) || []
+      }));
+      
+      setProducts(transformedData);
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -77,7 +91,8 @@ const ProductsManagement = () => {
         description: validatedData.description || null,
         for_him: validatedData.for_him || null,
         for_her: validatedData.for_her || null,
-        image_url: validatedData.image_url || null,
+        purchase_link: validatedData.purchase_link || null,
+        images: formData.images,
       };
 
       if (editingProduct) {
@@ -117,7 +132,8 @@ const ProductsManagement = () => {
       description: product.description || "",
       for_him: product.for_him || "",
       for_her: product.for_her || "",
-      image_url: product.image_url || "",
+      purchase_link: product.purchase_link || "",
+      images: product.images || [],
     });
     setOpen(true);
   };
@@ -157,7 +173,8 @@ const ProductsManagement = () => {
       description: "",
       for_him: "",
       for_her: "",
-      image_url: "",
+      purchase_link: "",
+      images: [],
     });
     setEditingProduct(null);
   };
@@ -241,11 +258,23 @@ const ProductsManagement = () => {
                 </div>
               </div>
 
-              <ImageUpload
-                currentImageUrl={formData.image_url}
-                onImageUrlChange={(url) => setFormData({ ...formData, image_url: url })}
+              <div>
+                <label className="block text-sm font-medium mb-2">Link Pembelian</label>
+                <Input
+                  value={formData.purchase_link}
+                  onChange={(e) => setFormData({ ...formData, purchase_link: e.target.value })}
+                  placeholder="https://wa.me/628123456789 atau https://shopee.co.id/..."
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Link WhatsApp, Shopee, Tokopedia, atau platform lainnya
+                </p>
+              </div>
+
+              <MultipleImageUpload
+                images={formData.images}
+                onImagesChange={(images) => setFormData({ ...formData, images })}
                 folder="products"
-                label="Gambar Produk"
+                label="Gambar Produk (Upload Multiple)"
               />
 
               <div className="flex justify-end gap-2 pt-4">
