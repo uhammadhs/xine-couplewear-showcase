@@ -142,12 +142,9 @@ const Collections = () => {
 
                 {/* Overlay Content */}
                 <div className="absolute inset-0 bg-gradient-to-t from-elegant-dark/90 via-elegant-dark/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                  <h3 className="text-2xl font-bold text-white mb-2">
+                  <h3 className="text-2xl font-bold text-white mb-4">
                     {collection.title}
                   </h3>
-                  <p className="text-white/90 mb-2 text-sm">
-                    {collection.description}
-                  </p>
                   <div className="flex justify-between text-xs text-white/80 mb-4">
                     <span>For Him: {collection.for_him}</span>
                     <span>For Her: {collection.for_her}</span>
