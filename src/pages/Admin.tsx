@@ -9,6 +9,7 @@ import ProductsManagement from "@/components/admin/ProductsManagement";
 import TestimonialsManagement from "@/components/admin/TestimonialsManagement";
 import MessagesManagement from "@/components/admin/MessagesManagement";
 import SiteSettingsManagement from "@/components/admin/SiteSettingsManagement";
+import CouplesManagement from "@/components/admin/CouplesManagement";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -58,9 +59,12 @@ const Admin = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 sm:mb-8 h-auto gap-2 bg-muted/50 p-1">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 mb-6 sm:mb-8 h-auto gap-2 bg-muted/50 p-1">
             <TabsTrigger value="products" className="text-xs sm:text-sm py-2 data-[state=active]:bg-background data-[state=active]:shadow-md">
               Produk
+            </TabsTrigger>
+            <TabsTrigger value="couples" className="text-xs sm:text-sm py-2 data-[state=active]:bg-background data-[state=active]:shadow-md">
+              Couple
             </TabsTrigger>
             <TabsTrigger value="testimonials" className="text-xs sm:text-sm py-2 data-[state=active]:bg-background data-[state=active]:shadow-md">
               Testimonial
@@ -76,6 +80,10 @@ const Admin = () => {
           <div className="bg-background/50 backdrop-blur-sm rounded-lg border border-border shadow-lg p-4 sm:p-6">
             <TabsContent value="products" className="space-y-4 mt-0">
               <ProductsManagement />
+            </TabsContent>
+
+            <TabsContent value="couples" className="space-y-4 mt-0">
+              <CouplesManagement />
             </TabsContent>
 
             <TabsContent value="testimonials" className="space-y-4 mt-0">

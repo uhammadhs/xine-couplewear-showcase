@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Eye } from "lucide-react";
+import ProductDetail from "./ProductDetail";
 
 type ImageItem = {
   url: string;
@@ -21,6 +22,7 @@ type Product = {
   purchase_link: string | null;
   is_active: boolean;
   display_order: number;
+  points_value: number | null;
 };
 
 const Collections = () => {
@@ -28,6 +30,8 @@ const Collections = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -149,16 +153,29 @@ const Collections = () => {
                     <span>For Her: {collection.for_her}</span>
                   </div>
                   
-                  {/* Buy Button */}
-                  {collection.purchase_link && (
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
                     <Button
-                      onClick={() => window.open(collection.purchase_link!, '_blank')}
-                      className="w-full bg-white text-primary hover:bg-white/90 transition-colors"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedProduct(collection);
+                        setDetailOpen(true);
+                      }}
+                      className="flex-1 bg-white/90 text-primary hover:bg-white border-white"
                     >
-                      <ShoppingBag className="mr-2" size={18} />
-                      Beli Sekarang
+                      <Eye className="mr-2" size={16} />
+                      Detail
                     </Button>
-                  )}
+                    {collection.purchase_link && (
+                      <Button
+                        onClick={() => window.open(collection.purchase_link!, '_blank')}
+                        className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                      >
+                        <ShoppingBag className="mr-2" size={16} />
+                        Beli
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Label */}
@@ -181,6 +198,12 @@ const Collections = () => {
           })}
         </div>
       </div>
+
+      <ProductDetail 
+        product={selectedProduct}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+      />
     </section>
   );
 };

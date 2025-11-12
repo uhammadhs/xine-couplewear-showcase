@@ -44,6 +44,45 @@ export type Database = {
         }
         Relationships: []
       }
+      couples: {
+        Row: {
+          couple_names: string
+          created_at: string
+          email: string | null
+          id: string
+          is_public: boolean
+          phone: string | null
+          photo_url: string | null
+          rank: number | null
+          total_points: number
+          updated_at: string
+        }
+        Insert: {
+          couple_names: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_public?: boolean
+          phone?: string | null
+          photo_url?: string | null
+          rank?: number | null
+          total_points?: number
+          updated_at?: string
+        }
+        Update: {
+          couple_names?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_public?: boolean
+          phone?: string | null
+          photo_url?: string | null
+          rank?: number | null
+          total_points?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string
@@ -56,6 +95,7 @@ export type Database = {
           image_url: string | null
           images: Json | null
           is_active: boolean | null
+          points_value: number | null
           purchase_link: string | null
           title: string
           updated_at: string | null
@@ -71,6 +111,7 @@ export type Database = {
           image_url?: string | null
           images?: Json | null
           is_active?: boolean | null
+          points_value?: number | null
           purchase_link?: string | null
           title: string
           updated_at?: string | null
@@ -86,6 +127,7 @@ export type Database = {
           image_url?: string | null
           images?: Json | null
           is_active?: boolean | null
+          points_value?: number | null
           purchase_link?: string | null
           title?: string
           updated_at?: string | null
@@ -118,6 +160,48 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      purchases: {
+        Row: {
+          couple_id: string
+          created_at: string
+          id: string
+          points_earned: number
+          product_id: string
+          purchase_date: string
+        }
+        Insert: {
+          couple_id: string
+          created_at?: string
+          id?: string
+          points_earned?: number
+          product_id: string
+          purchase_date?: string
+        }
+        Update: {
+          couple_id?: string
+          created_at?: string
+          id?: string
+          points_earned?: number
+          product_id?: string
+          purchase_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_couple_id_fkey"
+            columns: ["couple_id"]
+            isOneToOne: false
+            referencedRelation: "couples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_settings: {
         Row: {
