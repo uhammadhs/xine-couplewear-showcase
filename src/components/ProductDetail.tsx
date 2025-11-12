@@ -89,9 +89,11 @@ const ProductDetail = ({ product, open, onOpenChange }: ProductDetailProps) => {
               </Badge>
               
               {product.description && (
-                <p className="text-muted-foreground leading-relaxed">
-                  {product.description}
-                </p>
+                <div className="prose prose-sm max-w-none">
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">
+                    {product.description}
+                  </p>
+                </div>
               )}
             </div>
 

@@ -18,7 +18,7 @@ type ImageItem = {
 const productSchema = z.object({
   title: z.string().trim().min(1, "Judul wajib diisi").max(200, "Judul maksimal 200 karakter"),
   category: z.enum(["casual", "classic", "limited"], { required_error: "Kategori wajib dipilih" }),
-  description: z.string().trim().max(500, "Deskripsi maksimal 500 karakter").optional(),
+  description: z.string().trim().optional(),
   for_him: z.string().trim().max(200, "Maksimal 200 karakter").optional(),
   for_her: z.string().trim().max(200, "Maksimal 200 karakter").optional(),
   purchase_link: z.string().trim().url("Link pembelian tidak valid").optional().or(z.literal("")),
@@ -234,9 +234,13 @@ const ProductsManagement = () => {
                 <Textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Gaya santai yang tetap serasi"
-                  rows={3}
+                  placeholder="Gaya santai yang tetap serasi. Tulis deskripsi lengkap produk Anda di sini..."
+                  rows={6}
+                  className="min-h-[120px]"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Deskripsi dapat berisi teks panjang dan akan ditampilkan dengan format yang rapi
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
