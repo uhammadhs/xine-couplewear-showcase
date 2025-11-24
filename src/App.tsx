@@ -9,7 +9,22 @@ import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Cache data for 10 minutes
+      staleTime: 10 * 60 * 1000,
+      // Keep unused data in cache for 15 minutes
+      gcTime: 15 * 60 * 1000,
+      // Retry failed requests
+      retry: 2,
+      // Refetch on window focus for fresh data
+      refetchOnWindowFocus: true,
+      // Use cached data while refetching
+      refetchOnMount: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

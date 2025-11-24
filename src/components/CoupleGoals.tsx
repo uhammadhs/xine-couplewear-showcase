@@ -27,6 +27,9 @@ const CoupleGoals = () => {
       if (error) throw error;
       return data as Couple[];
     },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes (frequently updated)
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnWindowFocus: true, // Refresh when user comes back
   });
 
   const getRankIcon = (rank: number | null) => {
@@ -90,6 +93,8 @@ const CoupleGoals = () => {
                         src={couple.photo_url}
                         alt={couple.couple_names}
                         className="w-16 h-16 rounded-full object-cover"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-white font-semibold text-xl">

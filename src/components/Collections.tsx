@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ShoppingBag, Eye } from "lucide-react";
 import ProductDetail from "./ProductDetail";
@@ -27,18 +28,14 @@ type Product = {
 
 const Collections = () => {
   const [activeFilter, setActiveFilter] = useState("all");
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
+  // Use React Query for products with caching
+  const { data: products = [], isLoading: loading } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
         .select("*")
@@ -47,18 +44,14 @@ const Collections = () => {
 
       if (error) throw error;
       
-      const transformedData = (data || []).map(item => ({
+      return (data || []).map(item => ({
         ...item,
         images: (item.images as any as ImageItem[]) || []
-      }));
-      
-      setProducts(transformedData);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      })) as Product[];
+    },
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
+  });
 
 
   const filters = [
@@ -135,6 +128,7 @@ const Collections = () => {
                       alt={collection.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       loading="lazy"
+                      decoding="async"
                       onLoad={() => setLoadedImages(prev => new Set([...prev, collection.id]))}
                     />
                   )}
