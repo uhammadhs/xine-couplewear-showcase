@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Instagram, Mail, MessageCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 type FooterContent = {
@@ -13,16 +14,12 @@ type FooterContent = {
 };
 
 const Footer = () => {
-  const [content, setContent] = useState<FooterContent | null>(null);
-  const [loading, setLoading] = useState(true);
   const currentYear = new Date().getFullYear();
 
-  useEffect(() => {
-    fetchContent();
-  }, []);
-
-  const fetchContent = async () => {
-    try {
+  // Use React Query for footer content with caching
+  const { data: content } = useQuery({
+    queryKey: ["site-footer"],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("site_settings")
         .select("*")
@@ -31,21 +28,24 @@ const Footer = () => {
         .single();
 
       if (error) throw error;
-      if (data) {
-        setContent({
-          title: data.title || "",
-          description: data.description || "",
-          extra_data: data.extra_data as { instagram: string; email: string; whatsapp: string },
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching footer content:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) return null;
+      return {
+        title: data?.title || "XINE",
+        description: data?.description || "Gaya yang menyatukan dua hati.",
+        extra_data: data?.extra_data as { instagram: string; email: string; whatsapp: string },
+      } as FooterContent;
+    },
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
+    gcTime: 60 * 60 * 1000, // Keep in cache for 1 hour
+    initialData: {
+      title: "XINE",
+      description: "Gaya yang menyatukan dua hati.",
+      extra_data: {
+        instagram: "https://instagram.com/xineclothing",
+        email: "hello@xineclothing.com",
+        whatsapp: "https://wa.me/6281234567890",
+      },
+    }, // Instant render with fallback
+  });
 
   return (
     <footer className="bg-primary text-primary-foreground py-12">

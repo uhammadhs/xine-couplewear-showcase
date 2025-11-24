@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 type LogoContent = {
@@ -12,23 +13,12 @@ type LogoContent = {
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [logo, setLogo] = useState<LogoContent | null>(null);
   const [logoLoaded, setLogoLoaded] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    fetchLogo();
-  }, []);
-
-  const fetchLogo = async () => {
-    try {
+  // Use React Query for logo with aggressive caching
+  const { data: logo } = useQuery({
+    queryKey: ["site-logo"],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("site_settings")
         .select("title, image_url")
@@ -37,17 +27,24 @@ const Navbar = () => {
         .single();
 
       if (error) throw error;
-      if (data) {
-        setLogo({
-          title: data.title || "XINE",
-          image_url: data.image_url || "",
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching logo:", error);
-      setLogo({ title: "XINE", image_url: "" });
-    }
-  };
+      return {
+        title: data?.title || "XINE",
+        image_url: data?.image_url || "",
+      } as LogoContent;
+    },
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
+    gcTime: 60 * 60 * 1000, // Keep in cache for 1 hour
+    retry: 3,
+    initialData: { title: "XINE", image_url: "" }, // Instant render with fallback
+  });
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -87,7 +84,9 @@ const Navbar = () => {
                   src={logo.image_url}
                   alt={logo.title || "Logo"}
                   className="h-10 w-auto object-contain"
-                  loading="lazy"
+                  fetchPriority="high"
+                  loading="eager"
+                  decoding="async"
                   onLoad={() => setLogoLoaded(true)}
                   style={{ display: logoLoaded ? "block" : "none" }}
                 />
