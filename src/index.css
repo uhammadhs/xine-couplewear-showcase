@@ -151,6 +151,15 @@ All colors MUST be HSL.
     animation: slideUp 0.8s ease-out forwards;
   }
   
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
   @keyframes fadeIn {
     from {
       opacity: 0;
