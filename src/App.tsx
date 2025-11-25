@@ -6,21 +6,17 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+import ProductPage from "./pages/ProductPage"; // Import ProductPage
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Cache data for 10 minutes
-      staleTime: 10 * 60 * 1000,
-      // Keep unused data in cache for 15 minutes
+      staleTime: 10 * 60 * 1000, 
       gcTime: 15 * 60 * 1000,
-      // Retry failed requests
       retry: 2,
-      // Refetch on window focus for fresh data
       refetchOnWindowFocus: true,
-      // Use cached data while refetching
       refetchOnMount: false,
     },
   },
@@ -35,6 +31,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/product/:id" element={<ProductPage />} /> {/* Add product detail route */}
           <Route
             path="/admin"
             element={
@@ -43,7 +40,6 @@ const App = () => (
               </ProtectedRoute>
             }
           />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

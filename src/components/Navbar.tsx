@@ -2,41 +2,17 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-
-type LogoContent = {
-  title: string;
-  image_url: string;
-};
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
 
-  // Use React Query for logo with aggressive caching
-  const { data: logo } = useQuery({
-    queryKey: ["site-logo"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("site_settings")
-        .select("title, image_url")
-        .eq("section", "logo")
-        .eq("is_active", true)
-        .single();
-
-      if (error) throw error;
-      return {
-        title: data?.title || "XINE",
-        image_url: data?.image_url || "",
-      } as LogoContent;
-    },
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
-    gcTime: 60 * 60 * 1000, // Keep in cache for 1 hour
-    retry: 3,
-    initialData: { title: "XINE", image_url: "" }, // Instant render with fallback
-  });
+  // Logo diatur secara statis
+  const logo = {
+    title: "XINE",
+    image_url: "https://raw.githubusercontent.com/digitalninjanv/hosting_image/refs/heads/main/xine/Logo%20Warna%20Hitam.png",
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,7 +53,7 @@ const Navbar = () => {
             onClick={() => scrollToSection("hero")}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-300"
           >
-            {logo?.image_url?.startsWith("http") ? (
+            {logo.image_url.startsWith("http") ? (
               <div className="relative h-10 w-auto">
                 {!logoLoaded && <Skeleton className="h-10 w-24" />}
                 <img
@@ -93,7 +69,7 @@ const Navbar = () => {
               </div>
             ) : (
               <span className="text-2xl font-bold tracking-wider text-primary">
-                {logo?.title || "XINE"}
+                {logo.title || "XINE"}
               </span>
             )}
           </button>

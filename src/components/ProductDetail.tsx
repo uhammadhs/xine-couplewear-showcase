@@ -1,193 +1,134 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Award, Images, Trophy } from "lucide-react";
-import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ShoppingCart, X } from "lucide-react";
 
-interface ImageItem {
-  url: string;
-  isPrimary?: boolean;
-}
-
-interface Product {
+// TYPES
+interface ImageItem { url: string; is_primary?: boolean; }
+interface Product { 
   id: string;
   title: string;
   description: string | null;
   category: string;
+  price: number | null;
+  materials: string | null;
+  sizing: string | null;
+  care_instructions: string | null;
   for_him: string | null;
   for_her: string | null;
   images: ImageItem[];
   purchase_link: string | null;
-  points_value: number | null;
+}
+interface ProductDetailProps { product: Product | null; open: boolean; onOpenChange: (open: boolean) => void; }
+
+// HELPER
+const formatPrice = (price: number | null) => {
+  if (price === null || isNaN(price)) return "Harga tidak tersedia";
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
 }
 
-interface ProductDetailProps {
-  product: Product | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
+// MAIN COMPONENT
 const ProductDetail = ({ product, open, onOpenChange }: ProductDetailProps) => {
-  const [selectedImage, setSelectedImage] = useState(0);
+  const [activeImage, setActiveImage] = useState<string | undefined>(undefined);
+  const [isImageLoading, setIsImageLoading] = useState(true);
+
+  useEffect(() => {
+    if (open && product?.images && product.images.length > 0) {
+      const primary = product.images.find(img => img.is_primary) || product.images[0];
+      setActiveImage(primary.url);
+      setIsImageLoading(true);
+    } else if (open && product?.image_url) {
+      setActiveImage(product.image_url);
+    }
+  }, [product, open]);
 
   if (!product) return null;
 
-  const images = product.images || [];
-  const primaryImage = images.find(img => img.isPrimary) || images[0];
+  const { images, title, category, description, price, materials, sizing, care_instructions, purchase_link } = product;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[95vh] md:max-h-[90vh] overflow-hidden p-0 gap-0">
-        {/* Mobile-optimized header */}
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b px-4 py-3 md:px-6 md:py-4">
-          <DialogHeader>
-            <DialogTitle className="text-xl md:text-3xl font-serif pr-8">{product.title}</DialogTitle>
-          </DialogHeader>
+      <DialogContent className="max-w-4xl w-[95vw] p-0 gap-0 grid grid-cols-1 md:grid-cols-2 max-h-[90vh]">
+        {/* --- Close Button --- */}
+        <button onClick={() => onOpenChange(false)} className="absolute top-3 right-3 z-50 p-2 rounded-full text-gray-500 bg-white/60 backdrop-blur-sm hover:bg-white/80 transition-colors">
+          <X size={20}/>
+        </button>
+
+        {/* --- Image Gallery --- */}
+        <div className="col-span-1 bg-gray-50 flex flex-col items-center justify-center p-6 border-r border-gray-200">
+            <div className="relative w-full aspect-square overflow-hidden rounded-lg mb-4">
+              {isImageLoading && <Skeleton className="absolute inset-0" />}
+              <img
+                key={activeImage} 
+                src={activeImage}
+                alt={title}
+                className={`w-full h-full object-cover transition-opacity duration-300 ${isImageLoading ? 'opacity-0' : 'opacity-100'}`}
+                onLoad={() => setIsImageLoading(false)}
+              />
+            </div>
+            <div className="flex gap-2 justify-center">
+              {images && images.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => { setIsImageLoading(true); setActiveImage(image.url); }}
+                  className={`w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${activeImage === image.url ? 'border-primary scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}>
+                  <img src={image.url} alt={`${title} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
         </div>
-        
-        <div className="overflow-y-auto max-h-[calc(95vh-60px)] md:max-h-[calc(90vh-80px)]">
-          <div className="grid md:grid-cols-2 gap-0 md:gap-6 md:p-6">
-            {/* Image Gallery - Full width on mobile */}
-            <div className="space-y-2 md:space-y-4">
-              {images.length > 0 ? (
-                <>
-                  <div className="aspect-square md:rounded-lg overflow-hidden bg-muted relative group">
-                    <img
-                      src={images[selectedImage]?.url || primaryImage?.url}
-                      alt={product.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    {/* Mobile swipe indicators */}
-                    {images.length > 1 && (
-                      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 md:hidden">
-                        {images.map((_, index) => (
-                          <div
-                            key={index}
-                            className={`h-1.5 rounded-full transition-all duration-300 ${
-                              selectedImage === index 
-                                ? 'w-6 bg-white' 
-                                : 'w-1.5 bg-white/50'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  {/* Desktop thumbnail grid */}
-                  {images.length > 1 && (
-                    <div className="hidden md:grid grid-cols-4 gap-2">
-                      {images.map((image, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setSelectedImage(index)}
-                          className={`aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-95 ${
-                            selectedImage === index 
-                              ? 'border-primary scale-95' 
-                              : 'border-transparent hover:border-primary/50'
-                          }`}
-                        >
-                          <img
-                            src={image.url}
-                            alt={`${product.title} ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {/* Mobile horizontal scroll thumbnails */}
-                  {images.length > 1 && (
-                    <div className="flex gap-2 overflow-x-auto px-4 pb-2 md:hidden snap-x snap-mandatory scrollbar-hide">
-                      {images.map((image, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setSelectedImage(index)}
-                          className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all snap-start ${
-                            selectedImage === index 
-                              ? 'border-primary scale-95' 
-                              : 'border-transparent'
-                          }`}
-                        >
-                          <img
-                            src={image.url}
-                            alt={`${product.title} ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="aspect-square md:rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                  <span className="text-4xl md:text-6xl font-serif text-primary/40">{product.title.charAt(0)}</span>
-                </div>
-              )}
-            </div>
 
-          {/* Product Details - Padded on mobile */}
-          <div className="space-y-4 md:space-y-6 px-4 pb-20 md:pb-4 md:px-0">
-            <div className="animate-fade-in">
-              <Badge variant="secondary" className="mb-3 text-xs md:text-sm">
-                {product.category}
-              </Badge>
-              
-              {product.description && (
-                <div className="prose prose-sm md:prose-base max-w-none">
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">
-                    {product.description}
-                  </p>
-                </div>
-              )}
-            </div>
+        {/* --- Product Info (Scrollable) --- */}
+        <div className="col-span-1 flex flex-col bg-white">
+          <div className="flex-grow p-8 overflow-y-auto space-y-5">
+            <header>
+              <Badge variant="outline" className="mb-2 font-normal">{category}</Badge>
+              <h1 className="text-3xl font-serif text-gray-900">{title}</h1>
+            </header>
 
-            {/* For Him & Her */}
-            {(product.for_him || product.for_her) && (
-              <div className="grid grid-cols-2 gap-3 md:gap-4 p-3 md:p-4 bg-secondary/20 rounded-lg animate-fade-in">
-                {product.for_him && (
-                  <div>
-                    <p className="text-xs md:text-sm font-semibold mb-1 text-foreground/90">For Him</p>
-                    <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{product.for_him}</p>
-                  </div>
-                )}
-                {product.for_her && (
-                  <div>
-                    <p className="text-xs md:text-sm font-semibold mb-1 text-foreground/90">For Her</p>
-                    <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{product.for_her}</p>
-                  </div>
-                )}
-              </div>
+            <p className="text-3xl font-sans font-bold text-gray-800">{formatPrice(price)}</p>
+
+            {description && (
+                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line border-t pt-4">{description}</p>
             )}
+            
+            <Accordion type="single" collapsible className="w-full">
+              {materials && (
+                <AccordionItem value="materials">
+                  <AccordionTrigger>Bahan & Material</AccordionTrigger>
+                  <AccordionContent className="whitespace-pre-line text-sm text-gray-600">{materials}</AccordionContent>
+                </AccordionItem>
+              )}
+              {sizing && (
+                <AccordionItem value="sizing">
+                  <AccordionTrigger>Ukuran & Fit</AccordionTrigger>
+                  <AccordionContent className="whitespace-pre-line text-sm text-gray-600">{sizing}</AccordionContent>
+                </AccordionItem>
+              )}
+              {care_instructions && (
+                <AccordionItem value="care">
+                  <AccordionTrigger>Instruksi Perawatan</AccordionTrigger>
+                  <AccordionContent className="whitespace-pre-line text-sm text-gray-600">{care_instructions}</AccordionContent>
+                </AccordionItem>
+              )}
+            </Accordion>
 
-            {/* Points Info */}
-            {product.points_value && (
-              <div className="flex items-center gap-3 p-3 md:p-4 bg-primary/10 rounded-lg border border-primary/20 animate-fade-in">
-                <div className="bg-primary/20 p-2 rounded-full">
-                  <Trophy className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs md:text-sm font-semibold text-foreground/90">Points Value</p>
-                  <p className="text-base md:text-lg font-bold text-primary">{product.points_value} points</p>
-                </div>
-              </div>
-            )}
+          </div>
 
-            {/* Purchase Button - Fixed on mobile */}
-            {product.purchase_link && (
-              <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t md:relative md:p-0 md:bg-transparent md:border-0 z-20">
-                <Button
-                  size="lg"
-                  className="w-full shadow-lg md:shadow-none"
-                  onClick={() => window.open(product.purchase_link!, '_blank')}
-                >
-                  <ShoppingCart className="mr-2 h-4 w-4 md:h-5 md:w-5" />
-                  Beli Sekarang
-                </Button>
-              </div>
+          <div className="p-6 border-t bg-white mt-auto flex-shrink-0">
+            {purchase_link ? (
+              <Button size="lg" className="w-full text-base" onClick={() => window.open(purchase_link, '_blank')}>
+                <ShoppingCart className="mr-2 h-5 w-5" /> Beli Sekarang
+              </Button>
+            ) : (
+              <p className="text-center text-sm text-gray-500">Segera Hadir</p>
             )}
           </div>
         </div>
-        </div>
+
       </DialogContent>
     </Dialog>
   );
