@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import MultipleImageUpload from "@/components/admin/MultipleImageUpload";
+import { Badge } from "@/components/ui/badge";
 
 type ImageItem = { url: string; is_primary?: boolean; };
 
@@ -230,7 +231,9 @@ const ProductsManagement = () => {
                 <p className="text-sm text-muted-foreground">Harga: {product.price ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(product.price) : "-"}</p>
               </div>
               <div className="flex gap-2 flex-shrink-0">
-                <Button size="sm" variant="outline" onClick={() => toggleActive(product.id, product.is_active)}><{product.is_active ? EyeOff : Eye} size={16} /></Button>
+                <Button size="sm" variant="outline" onClick={() => toggleActive(product.id, product.is_active)}>
+                  {product.is_active ? <EyeOff size={16} /> : <Eye size={16} />}
+                </Button>
                 <Button size="sm" variant="outline" onClick={() => handleEdit(product)}><Edit size={16} /></Button>
                 <Button size="sm" variant="destructive" onClick={() => handleDelete(product.id)}><Trash2 size={16} /></Button>
               </div>

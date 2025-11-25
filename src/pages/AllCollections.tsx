@@ -1,10 +1,12 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, ShoppingBag } from "lucide-react";
 
 // TYPES
@@ -23,7 +25,7 @@ const formatPrice = (price: number | null) => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
 }
 
-// SUB-COMPONENTS
+// SUB-COMPONENTS (Copied from Collections.tsx)
 const ProductCard = ({ product, onDetailClick }: { product: Product; onDetailClick: () => void }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0];
@@ -31,7 +33,6 @@ const ProductCard = ({ product, onDetailClick }: { product: Product; onDetailCli
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Implement add to cart logic here in the future
     console.log(`Product ${product.id} added to cart (simulation)`);
   }
 
@@ -84,8 +85,8 @@ const ProductGridSkeleton = () => (
   </div>
 );
 
-// MAIN COMPONENT
-const Collections = () => {
+// MAIN PAGE COMPONENT
+const AllCollectionsPage = () => {
   const navigate = useNavigate();
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
@@ -95,7 +96,7 @@ const Collections = () => {
         .from("products")
         .select("id, title, category, price, images")
         .eq("is_active", true)
-        .order("display_order", { ascending: true });
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       return (data || []).map(item => ({ ...item, images: (item.images as any) || [] }));
@@ -107,45 +108,32 @@ const Collections = () => {
     navigate(`/product/${product.id}`);
   };
 
-  const renderProductGrid = (category: string | null) => {
-    if (isLoading) return <ProductGridSkeleton />;
-    const filtered = category ? products.filter(p => p.category.toLowerCase() === category.toLowerCase()) : products;
-
-    return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
-        {filtered.map(product => (
-          <ProductCard key={product.id} product={product} onDetailClick={() => handleDetailClick(product)} />
-        ))}
-      </div>
-    );
-  };
-  
   return (
-    <section id="collections" className="py-20 md:py-28">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 md:pb-20">
         <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-gray-900">
-            Our Collections
-          </h2>
-          <p className="mt-4 text-base lg:text-lg text-gray-600 max-w-2xl mx-auto">
-            Explore our couplewear, designed for perfect harmony and effortless style.
-          </p>
+            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-gray-900">
+                All Collections
+            </h1>
+            <p className="mt-4 text-base lg:text-lg text-gray-600 max-w-2xl mx-auto">
+                Discover every piece from our collections. Find the perfect match that tells your story.
+            </p>
         </div>
-
-        <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-10">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="casual">Casual</TabsTrigger>
-            <TabsTrigger value="classic">Classic</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="all">{renderProductGrid(null)}</TabsContent>
-          <TabsContent value="casual">{renderProductGrid("casual")}</TabsContent>
-          <TabsContent value="classic">{renderProductGrid("classic")}</TabsContent>
-        </Tabs>
-      </div>
-    </section>
+        
+        {isLoading ? (
+          <ProductGridSkeleton />
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+            {products.map(product => (
+              <ProductCard key={product.id} product={product} onDetailClick={() => handleDetailClick(product)} />
+            ))}
+          </div>
+        )}
+      </main>
+      <Footer />
+    </div>
   );
 };
 
-export default Collections;
+export default AllCollectionsPage;

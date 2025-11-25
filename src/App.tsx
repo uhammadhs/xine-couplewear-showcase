@@ -6,7 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
-import ProductPage from "./pages/ProductPage"; // Import ProductPage
+import ProductPage from "./pages/ProductPage";
+import AllCollectionsPage from "./pages/AllCollections"; // Import AllCollectionsPage
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 
@@ -31,7 +32,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/product/:id" element={<ProductPage />} /> {/* Add product detail route */}
+          <Route path="/collections" element={<AllCollectionsPage />} /> {/* Add collections route */}
+          <Route path="/product/:id" element={<ProductPage />} />
           <Route
             path="/admin"
             element={

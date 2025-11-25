@@ -35,7 +35,7 @@ const ProductPage = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('*, images(url, is_primary)')
+        .select('*')
         .eq('id', id)
         .single();
       if (error) throw new Error(error.message);
@@ -111,9 +111,9 @@ const ProductPage = () => {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 md:pb-20">
         <div className="mb-8">
-            <Button variant="outline" asChild>
+            <Button variant="outline" size="sm" asChild>
                 <Link to="/"><ArrowLeft size={16} className="mr-2"/> Kembali ke Koleksi</Link>
             </Button>
         </div>
