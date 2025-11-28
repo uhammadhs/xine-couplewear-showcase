@@ -4,6 +4,17 @@ import { Trophy, Award, Medal, Crown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { CoupleGoalsForm } from "./CoupleGoalsForm";
+import { useState } from "react";
 
 interface Couple {
   id: string;
@@ -14,6 +25,7 @@ interface Couple {
 }
 
 const CoupleGoals = () => {
+  const [open, setOpen] = useState(false);
   const { data: couples, isLoading } = useQuery({
     queryKey: ["couples"],
     queryFn: async () => {
@@ -22,7 +34,7 @@ const CoupleGoals = () => {
         .select("*")
         .eq("is_public", true)
         .order("rank", { ascending: true })
-        .limit(10);
+        .limit(5);
 
       if (error) throw error;
       return data as Couple[];
@@ -61,6 +73,20 @@ const CoupleGoals = () => {
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Bergabunglah dengan pasangan lainnya yang telah mempercayai kami untuk mewujudkan momen istimewa mereka
           </p>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="mt-4">Join the Couple Goals</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Join the Couple Goals</DialogTitle>
+                <DialogDescription>
+                  Submit your details to be featured in the Couple Goals section.
+                </DialogDescription>
+              </DialogHeader>
+              <CoupleGoalsForm setOpen={setOpen} />
+            </DialogContent>
+          </Dialog>
         </div>
 
         {isLoading ? (
